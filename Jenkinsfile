@@ -32,7 +32,7 @@ pipeline {
 
                     sh '''
                     mvn flyway:migrate \
-                    -Dflyway.url=jdbc:mysql://YOUR_DB_HOST:3306/stage_test \
+                    -Dflyway.url=jdbc:mysql://localhost:3306/stage_test \
                     -Dflyway.user=$DB_USER \
                     -Dflyway.password=$DB_PASSWORD
                     '''
