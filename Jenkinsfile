@@ -24,9 +24,9 @@ pipeline {
 
                 withCredentials([
                     usernamePassword(
-                        credentialsId: 'mysql-credentials',
-                        usernameVariable: 'DB_USER',
-                        passwordVariable: 'DB_PASSWORD'
+                        credentialsId: 'db-credentials',
+                        usernameVariable: 'root',
+                        passwordVariable: 'root'
                     )
                 ]) {
 
