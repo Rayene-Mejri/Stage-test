@@ -6,6 +6,10 @@ pipeline {
         IMAGE_NAME = "rayenemejri42/stage-test"
     }
 
+    options {
+        skipDefaultCheckout(true)
+    }
+
     stages {
 
         stage('Checkout') {
@@ -13,7 +17,7 @@ pipeline {
                 git(
                     branch: 'main',
                     url: 'https://github.com/Rayene-Mejri/Stage-test.git',
-                    credentialsId: 'github-credentials'
+                    credentialsId: 'Github'
                 )
             }
         }
@@ -25,8 +29,8 @@ pipeline {
                 withCredentials([
                     usernamePassword(
                         credentialsId: 'db-credentials',
-                        usernameVariable: 'root',
-                        passwordVariable: 'root'
+                        usernameVariable: 'DB_USER',
+                        passwordVariable: 'DB_PASSWORD'
                     )
                 ]) {
 
