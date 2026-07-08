@@ -18,6 +18,30 @@ pipeline {
             }
         }
 
+
+        stage('Flyway Migration') {
+            steps {
+
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'mysql-credentials',
+                        usernameVariable: 'DB_USER',
+                        passwordVariable: 'DB_PASSWORD'
+                    )
+                ]) {
+
+                    sh '''
+                    mvn flyway:migrate \
+                    -Dflyway.url=jdbc:mysql://YOUR_DB_HOST:3306/stage_test \
+                    -Dflyway.user=$DB_USER \
+                    -Dflyway.password=$DB_PASSWORD
+                    '''
+
+                }
+            }
+        }
+
+
         stage('Build Docker Image') {
             steps {
                 sh '''
@@ -26,8 +50,10 @@ pipeline {
             }
         }
 
+
         stage('Push Docker Image') {
             steps {
+
                 withCredentials([
                     usernamePassword(
                         credentialsId: 'dockerhub',
