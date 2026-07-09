@@ -3,6 +3,8 @@ pipeline {
 
     environment {
         IMAGE_NAME = "rayenemejri42/stage-test"
+        JAVA_HOME = tool name: 'jdk-17', type: 'jdk'
+        MAVEN_HOME = tool name: 'maven-3', type: 'maven'
     }
 
     options {
@@ -103,10 +105,10 @@ pipeline {
 
     post {
         success {
-            echo "Pipeline completed successfully! "
+            echo "Pipeline completed successfully!"
         }
         failure {
-            echo "Pipeline failed! "
+            echo "Pipeline failed!"
             echo "Check the logs above for errors."
         }
         always {
