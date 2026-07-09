@@ -22,10 +22,34 @@ pipeline {
             }
         }
 
+        stage('Build & Test') {
+            steps {
+                sh 'mvn clean verify'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh '''
+                    mvn sonar:sonar \
+                    -Dsonar.projectKey=stage-test \
+                    -Dsonar.projectName="Stage Test"
+                    '''
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
 
         stage('Flyway Migration') {
             steps {
-
                 withCredentials([
                     usernamePassword(
                         credentialsId: 'db-credentials',
@@ -33,7 +57,6 @@ pipeline {
                         passwordVariable: 'DB_PASSWORD'
                     )
                 ]) {
-
                     sh '''
                     mvn flyway:migrate \
                     -Dflyway.url=jdbc:mysql://localhost:3306/stage_test \
@@ -41,11 +64,9 @@ pipeline {
                     -Dflyway.password=$DB_PASSWORD \
                     -Dflyway.baselineOnMigrate=true
                     '''
-
                 }
             }
         }
-
 
         stage('Build Docker Image') {
             steps {
@@ -55,10 +76,8 @@ pipeline {
             }
         }
 
-
         stage('Push Docker Image') {
             steps {
-
                 withCredentials([
                     usernamePassword(
                         credentialsId: 'dockerhub',
@@ -66,7 +85,6 @@ pipeline {
                         passwordVariable: 'DOCKER_PASS'
                     )
                 ]) {
-
                     sh '''
                     echo $DOCKER_PASS | docker login \
                     -u $DOCKER_USER --password-stdin
@@ -75,6 +93,21 @@ pipeline {
                     '''
                 }
             }
+        }
+    }
+
+    post {
+
+        success {
+            echo "Pipeline completed successfully!"
+        }
+
+        failure {
+            echo "Pipeline failed!"
+        }
+
+        always {
+            cleanWs()
         }
     }
 }
