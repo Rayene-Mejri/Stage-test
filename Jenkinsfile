@@ -3,7 +3,6 @@ pipeline {
 
     environment {
         IMAGE_NAME = "rayenemejri42/stage-test"
-        MAVEN_HOME = tool name: 'maven-3', type: 'maven'
     }
 
     options {
@@ -30,14 +29,6 @@ pipeline {
                     mvn package -DskipTests
                 '''
             }
-            post {
-                success {
-                    echo 'Maven build completed successfully!'
-                }
-                failure {
-                    echo 'Maven build failed!'
-                }
-            }
         }
 
         stage('SonarQube Analysis') {
@@ -48,9 +39,7 @@ pipeline {
                             -Dsonar.projectKey=stage-test \
                             -Dsonar.projectName="Stage Test" \
                             -Dsonar.java.binaries=target/classes \
-                            -Dsonar.java.test.binaries=target/test-classes \
-                            -Dsonar.sources=src/main/java \
-                            -Dsonar.tests=src/test/java
+                            -Dsonar.java.test.binaries=target/test-classes
                     '''
                 }
             }
@@ -113,17 +102,13 @@ pipeline {
     }
 
     post {
-
         success {
-            echo "Pipeline completed successfully!"
-            echo "Image: $IMAGE_NAME:$BUILD_NUMBER pushed to Docker Hub"
+            echo "Pipeline completed successfully! "
         }
-
         failure {
-            echo "Pipeline failed!"
+            echo "Pipeline failed! "
             echo "Check the logs above for errors."
         }
-
         always {
             cleanWs()
         }
