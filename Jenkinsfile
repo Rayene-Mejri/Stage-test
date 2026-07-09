@@ -25,24 +25,28 @@ pipeline {
 
         stage('Maven Build & Test') {
             steps {
-                sh '''
-                    mvn clean compile
-                    mvn test
-                    mvn package -DskipTests
-                '''
+                withEnv(["JAVA_HOME=${tool 'jdk-17'}", "PATH+MAVEN=${tool 'maven-3'}/bin:${env.JAVA_HOME}/bin"]) {
+                    sh '''
+                        mvn clean compile
+                        mvn test
+                        mvn package -DskipTests
+                    '''
+                }
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('sonarqube') {
-                    sh '''
-                        mvn sonar:sonar \
-                            -Dsonar.projectKey=stage-test \
-                            -Dsonar.projectName="Stage Test" \
-                            -Dsonar.java.binaries=target/classes \
-                            -Dsonar.java.test.binaries=target/test-classes
-                    '''
+                    withEnv(["JAVA_HOME=${tool 'jdk-17'}", "PATH+MAVEN=${tool 'maven-3'}/bin:${env.JAVA_HOME}/bin"]) {
+                        sh '''
+                            mvn sonar:sonar \
+                                -Dsonar.projectKey=stage-test \
+                                -Dsonar.projectName="Stage Test" \
+                                -Dsonar.java.binaries=target/classes \
+                                -Dsonar.java.test.binaries=target/test-classes
+                        '''
+                    }
                 }
             }
         }
@@ -64,13 +68,15 @@ pipeline {
                         passwordVariable: 'DB_PASSWORD'
                     )
                 ]) {
-                    sh '''
-                        mvn flyway:migrate \
-                            -Dflyway.url=jdbc:mysql://localhost:3306/stage_test \
-                            -Dflyway.user=$DB_USER \
-                            -Dflyway.password=$DB_PASSWORD \
-                            -Dflyway.baselineOnMigrate=true
-                    '''
+                    withEnv(["JAVA_HOME=${tool 'jdk-17'}", "PATH+MAVEN=${tool 'maven-3'}/bin:${env.JAVA_HOME}/bin"]) {
+                        sh '''
+                            mvn flyway:migrate \
+                                -Dflyway.url=jdbc:mysql://localhost:3306/stage_test \
+                                -Dflyway.user=$DB_USER \
+                                -Dflyway.password=$DB_PASSWORD \
+                                -Dflyway.baselineOnMigrate=true
+                        '''
+                    }
                 }
             }
         }
