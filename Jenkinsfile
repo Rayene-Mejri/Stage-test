@@ -31,6 +31,7 @@ pipeline {
                         "PATH=${javaHome}/bin:${mavenHome}/bin:${env.PATH}"
                     ]) {
                         sh '''
+                            echo "JAVA_HOME is: $JAVA_HOME"
                             java -version
                             mvn --version
                             mvn clean compile
@@ -132,10 +133,10 @@ pipeline {
 
     post {
         success {
-            echo "Pipeline completed successfully!"
+            echo "Pipeline completed successfully! "
         }
         failure {
-            echo "Pipeline failed!"
+            echo "Pipeline failed! "
             echo "Check the logs above for errors."
         }
         always {
