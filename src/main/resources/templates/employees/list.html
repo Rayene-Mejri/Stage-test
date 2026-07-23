@@ -127,7 +127,7 @@
                         <span th:if="${emp.department != null}" class="dept-badge" th:text="${emp.department.name}">Engineering</span>
                         <span th:if="${emp.department == null}" style="color: rgba(255,255,255,0.4);">-</span>
                     </td>
-                    <td th:text="${emp.salary != null ? '$' + #numbers.formatDecimal(emp.salary, 1, 'COMMA', 2, 'POINT') : '-'}">$85,000</td>
+                    <td th:text="${emp.salary != null ? '$' + #numbers.formatDecimal(emp.salary, 1, 2) : '-'}">$85,000</td>
                     <td th:text="${emp.hireDate != null ? emp.hireDate : '-'}">2023-01-15</td>
                     <td class="actions-cell">
                         <a th:href="@{/employees/edit/{id}(id=${emp.id})}" class="btn btn-edit">Edit</a>

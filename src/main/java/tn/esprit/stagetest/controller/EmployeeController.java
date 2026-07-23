@@ -40,6 +40,13 @@ public class EmployeeController {
                                Model model,
                                RedirectAttributes redirectAttributes) {
 
+        if (employee.getDepartment() != null && employee.getDepartment().getId() != null) {
+            departmentService.getDepartmentById(employee.getDepartment().getId())
+                    .ifPresentOrElse(employee::setDepartment, () -> employee.setDepartment(null));
+        } else {
+            employee.setDepartment(null);
+        }
+
         if (employee.getId() == null) {
             if (employeeService.emailExists(employee.getEmail())) {
                 result.rejectValue("email", "error.employee", "Email already exists");

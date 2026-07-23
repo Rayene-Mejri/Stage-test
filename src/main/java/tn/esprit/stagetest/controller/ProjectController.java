@@ -43,6 +43,13 @@ public class ProjectController {
                               Model model,
                               RedirectAttributes redirectAttributes) {
 
+        if (project.getDepartment() != null && project.getDepartment().getId() != null) {
+            departmentService.getDepartmentById(project.getDepartment().getId())
+                    .ifPresentOrElse(project::setDepartment, () -> project.setDepartment(null));
+        } else {
+            project.setDepartment(null);
+        }
+
         if (result.hasErrors()) {
             model.addAttribute("departments", departmentService.getAllDepartments());
             model.addAttribute("statuses", List.of("PLANNING", "IN_PROGRESS", "COMPLETED", "ON_HOLD"));
