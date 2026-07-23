@@ -11,6 +11,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import tn.esprit.stagetest.dto.RegistrationDto;
+import tn.esprit.stagetest.service.DepartmentService;
+import tn.esprit.stagetest.service.EmployeeService;
+import tn.esprit.stagetest.service.EquipmentService;
+import tn.esprit.stagetest.service.ProjectService;
 import tn.esprit.stagetest.service.UserService;
 
 @Controller
@@ -18,6 +22,10 @@ import tn.esprit.stagetest.service.UserService;
 public class AuthController {
 
     private final UserService userService;
+    private final DepartmentService departmentService;
+    private final EmployeeService employeeService;
+    private final ProjectService projectService;
+    private final EquipmentService equipmentService;
 
     @GetMapping("/login")
     public String loginPage() {
@@ -53,7 +61,11 @@ public class AuthController {
 
     @GetMapping("/home")
     public String homePage(@AuthenticationPrincipal UserDetails userDetails, Model model) {
-        model.addAttribute("username", userDetails.getUsername());
+        model.addAttribute("username", userDetails != null ? userDetails.getUsername() : "User");
+        model.addAttribute("departmentCount", departmentService.count());
+        model.addAttribute("employeeCount", employeeService.count());
+        model.addAttribute("projectCount", projectService.count());
+        model.addAttribute("equipmentCount", equipmentService.count());
         return "home";
     }
 }

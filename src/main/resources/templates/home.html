@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home - Stage Test</title>
+    <title>Dashboard - Stage Test</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -15,11 +15,9 @@
         body {
             font-family: 'Inter', sans-serif;
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-            overflow: hidden;
+            color: #fff;
+            padding: 40px 20px;
         }
 
         .bg-circles {
@@ -49,7 +47,7 @@
         }
         .bg-circles .circle:nth-child(3) {
             width: 250px; height: 250px;
-            background: #f59e0b;
+            background: #06b6d4;
             top: 60%; left: 50%;
             animation-delay: 4s;
         }
@@ -59,55 +57,30 @@
             50% { transform: translateY(-30px) scale(1.05); }
         }
 
-        .home-container {
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
             position: relative;
             z-index: 1;
-            text-align: center;
-            animation: slideUp 0.6s ease-out;
         }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .welcome-card {
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            padding: 60px 80px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            padding: 24px 32px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
         }
 
-        .emoji {
-            font-size: 64px;
-            margin-bottom: 24px;
-            animation: wave 2s ease-in-out infinite;
-            display: inline-block;
-        }
-
-        @keyframes wave {
-            0%, 100% { transform: rotate(0deg); }
-            25% { transform: rotate(20deg); }
-            75% { transform: rotate(-10deg); }
-        }
-
-        .welcome-text {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 16px;
-            font-weight: 400;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-        }
-
-        .username-text {
-            color: #fff;
-            font-size: 42px;
+        .welcome-title {
+            font-size: 24px;
             font-weight: 700;
-            margin-bottom: 12px;
         }
 
         .username-highlight {
@@ -117,31 +90,126 @@
             background-clip: text;
         }
 
-        .subtitle {
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 14px;
-            margin-bottom: 40px;
-        }
-
         .btn-logout {
-            display: inline-block;
-            padding: 12px 32px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 12px;
-            color: rgba(255, 255, 255, 0.7);
+            padding: 10px 24px;
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 10px;
+            color: #fca5a5;
             font-size: 14px;
-            font-weight: 500;
-            font-family: 'Inter', sans-serif;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             text-decoration: none;
         }
 
         .btn-logout:hover {
-            background: rgba(239, 68, 68, 0.15);
-            border-color: rgba(239, 68, 68, 0.3);
-            color: #fca5a5;
+            background: rgba(239, 68, 68, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .section-title {
+            font-size: 20px;
+            margin-bottom: 24px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 24px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 32px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-icon {
+            font-size: 40px;
+            margin-bottom: 16px;
+        }
+
+        .card-header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .card-count {
+            font-size: 32px;
+            font-weight: 700;
+            color: #38bdf8;
+            background: rgba(56, 189, 248, 0.1);
+            padding: 4px 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+
+        .card-name {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .card-desc {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-card {
+            flex: 1;
+            text-align: center;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #7c3aed, #6366f1);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
             transform: translateY(-2px);
         }
     </style>
@@ -154,17 +222,83 @@
     <div class="circle"></div>
 </div>
 
-<div class="home-container">
-    <div class="welcome-card">
-        <p class="welcome-text">Welcome</p>
-        <h1 class="username-text">
-            Hello, <span class="username-highlight" th:text="${username}">User</span>!
-        </h1>
-        <p class="subtitle">You are successfully logged in</p>
-
-        <form th:action="@{/logout}" method="post" style="display: inline;">
+<div class="container">
+    <header>
+        <div>
+            <p style="color: rgba(255,255,255,0.5); font-size: 13px; text-transform: uppercase; letter-spacing: 1px;">Organization Workspace</p>
+            <h1 class="welcome-title">Welcome back, <span class="username-highlight" th:text="${username}">User</span>!</h1>
+        </div>
+        <form th:action="@{/logout}" method="post">
             <button type="submit" class="btn-logout">Sign Out</button>
         </form>
+    </header>
+
+    <h2 class="section-title">Organization Domain Modules</h2>
+
+    <div class="grid-cards">
+        <!-- Departments Card -->
+        <div class="card">
+            <div>
+                <div class="card-header-flex">
+                    <div class="card-icon">🏢</div>
+                    <div class="card-count" th:text="${departmentCount}">0</div>
+                </div>
+                <h3 class="card-name">Departments</h3>
+                <p class="card-desc">Manage organization structure, codes, locations, and annual departmental budgets.</p>
+            </div>
+            <div class="card-actions">
+                <a th:href="@{/departments}" class="btn-card btn-primary">View All</a>
+                <a th:href="@{/departments/new}" class="btn-card btn-secondary">+ Add</a>
+            </div>
+        </div>
+
+        <!-- Employees Card -->
+        <div class="card">
+            <div>
+                <div class="card-header-flex">
+                    <div class="card-icon">👥</div>
+                    <div class="card-count" th:text="${employeeCount}">0</div>
+                </div>
+                <h3 class="card-name">Employees</h3>
+                <p class="card-desc">Track staff records, job roles, contact details, salaries, and department affiliations.</p>
+            </div>
+            <div class="card-actions">
+                <a th:href="@{/employees}" class="btn-card btn-primary">View All</a>
+                <a th:href="@{/employees/new}" class="btn-card btn-secondary">+ Add</a>
+            </div>
+        </div>
+
+        <!-- Projects Card -->
+        <div class="card">
+            <div>
+                <div class="card-header-flex">
+                    <div class="card-icon">🚀</div>
+                    <div class="card-count" th:text="${projectCount}">0</div>
+                </div>
+                <h3 class="card-name">Projects</h3>
+                <p class="card-desc">Oversee active projects, descriptions, progress statuses, timelines, and department leads.</p>
+            </div>
+            <div class="card-actions">
+                <a th:href="@{/projects}" class="btn-card btn-primary">View All</a>
+                <a th:href="@{/projects/new}" class="btn-card btn-secondary">+ Add</a>
+            </div>
+        </div>
+
+        <!-- Equipment Card -->
+        <div class="card">
+            <div>
+                <div class="card-header-flex">
+                    <div class="card-icon">💻</div>
+                    <div class="card-count" th:text="${equipmentCount}">0</div>
+                </div>
+                <h3 class="card-name">Equipment</h3>
+                <p class="card-desc">Manage physical assets, serial numbers, categories, purchase dates, and assigned staff.</p>
+            </div>
+            <div class="card-actions">
+                <a th:href="@{/equipments}" class="btn-card btn-primary">View All</a>
+                <a th:href="@{/equipments/new}" class="btn-card btn-secondary">+ Add</a>
+            </div>
+        </div>
     </div>
 </div>
 
