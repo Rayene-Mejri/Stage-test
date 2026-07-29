@@ -1,306 +1,45 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Stage Test</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-            color: #fff;
-            padding: 40px 20px;
-        }
-
-        .bg-circles {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 0;
-        }
-        .bg-circles .circle {
-            position: absolute;
-            border-radius: 50%;
-            opacity: 0.08;
-            animation: float 8s ease-in-out infinite;
-        }
-        .bg-circles .circle:nth-child(1) {
-            width: 500px; height: 500px;
-            background: #22c55e;
-            top: -150px; left: -150px;
-            animation-delay: 0s;
-        }
-        .bg-circles .circle:nth-child(2) {
-            width: 350px; height: 350px;
-            background: #7c3aed;
-            bottom: -100px; right: -100px;
-            animation-delay: 2s;
-        }
-        .bg-circles .circle:nth-child(3) {
-            width: 250px; height: 250px;
-            background: #06b6d4;
-            top: 60%; left: 50%;
-            animation-delay: 4s;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-30px) scale(1.05); }
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 1;
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 40px;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 24px 32px;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        .welcome-title {
-            font-size: 24px;
-            font-weight: 700;
-        }
-
-        .username-highlight {
-            background: linear-gradient(135deg, #7c3aed, #06b6d4);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .btn-logout {
-            padding: 10px 24px;
-            background: rgba(239, 68, 68, 0.15);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            border-radius: 10px;
-            color: #fca5a5;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-        }
-
-        .btn-logout:hover {
-            background: rgba(239, 68, 68, 0.3);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
-        }
-
-        .section-title {
-            font-size: 20px;
-            margin-bottom: 24px;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        .grid-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 24px;
-        }
-
-        .card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 32px;
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .card:hover {
-            transform: translateY(-6px);
-            border-color: rgba(255, 255, 255, 0.25);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-        }
-
-        .card-icon {
-            font-size: 40px;
-            margin-bottom: 16px;
-        }
-
-        .card-header-flex {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-
-        .card-count {
-            font-size: 32px;
-            font-weight: 700;
-            color: #38bdf8;
-            background: rgba(56, 189, 248, 0.1);
-            padding: 4px 14px;
-            border-radius: 12px;
-            border: 1px solid rgba(56, 189, 248, 0.2);
-        }
-
-        .card-name {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .card-desc {
-            font-size: 13px;
-            color: rgba(255, 255, 255, 0.6);
-            margin-bottom: 24px;
-            line-height: 1.5;
-        }
-
-        .card-actions {
-            display: flex;
-            gap: 12px;
-        }
-
-        .btn-card {
-            flex: 1;
-            text-align: center;
-            padding: 10px 14px;
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.2s ease;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #7c3aed, #6366f1);
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
-        }
-
-        .btn-primary:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #fff;
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
-        }
-    </style>
-</head>
+<html th:replace="~{fragments/layout :: page(title='Dashboard', content=~{::mainContent})}">
 <body>
-
-<div class="bg-circles">
-    <div class="circle"></div>
-    <div class="circle"></div>
-    <div class="circle"></div>
-</div>
-
-<div class="container">
-    <header>
-        <div>
-            <p style="color: rgba(255,255,255,0.5); font-size: 13px; text-transform: uppercase; letter-spacing: 1px;">Organization Workspace</p>
-            <h1 class="welcome-title">Welcome back, <span class="username-highlight" th:text="${username}">User</span>!</h1>
-        </div>
-        <form th:action="@{/logout}" method="post">
-            <button type="submit" class="btn-logout">Sign Out</button>
-        </form>
-    </header>
-
-    <h2 class="section-title">Organization Domain Modules</h2>
-
-    <div class="grid-cards">
-        <!-- Departments Card -->
-        <div class="card">
-            <div>
-                <div class="card-header-flex">
-                    <div class="card-icon">🏢</div>
-                    <div class="card-count" th:text="${departmentCount}">0</div>
-                </div>
-                <h3 class="card-name">Departments</h3>
-                <p class="card-desc">Manage organization structure, codes, locations, and annual departmental budgets.</p>
-            </div>
-            <div class="card-actions">
-                <a th:href="@{/departments}" class="btn-card btn-primary">View All</a>
-                <a th:href="@{/departments/new}" class="btn-card btn-secondary">+ Add</a>
+<div th:fragment="mainContent">
+    <div class="dashboard-grid">
+        <div class="glass-card">
+            <div style="font-size: 2rem; margin-bottom: 10px;">🏢</div>
+            <h3 style="font-size: 2rem; color: var(--text-main); margin-bottom: 5px;" th:text="${departmentCount ?: 0}">0</h3>
+            <p style="color: var(--text-muted); margin-bottom: 15px;">Departments</p>
+            <div style="display:flex; gap: 10px;">
+                <a th:href="@{/departments}" class="btn btn-primary" style="flex:1; text-align:center;">View All</a>
+                <a th:href="@{/departments/new}" class="btn btn-success">+ Add</a>
             </div>
         </div>
-
-        <!-- Employees Card -->
-        <div class="card">
-            <div>
-                <div class="card-header-flex">
-                    <div class="card-icon">👥</div>
-                    <div class="card-count" th:text="${employeeCount}">0</div>
-                </div>
-                <h3 class="card-name">Employees</h3>
-                <p class="card-desc">Track staff records, job roles, contact details, salaries, and department affiliations.</p>
-            </div>
-            <div class="card-actions">
-                <a th:href="@{/employees}" class="btn-card btn-primary">View All</a>
-                <a th:href="@{/employees/new}" class="btn-card btn-secondary">+ Add</a>
+        <div class="glass-card">
+            <div style="font-size: 2rem; margin-bottom: 10px;">👥</div>
+            <h3 style="font-size: 2rem; color: var(--text-main); margin-bottom: 5px;" th:text="${employeeCount ?: 0}">0</h3>
+            <p style="color: var(--text-muted); margin-bottom: 15px;">Employees</p>
+            <div style="display:flex; gap: 10px;">
+                <a th:href="@{/employees}" class="btn btn-primary" style="flex:1; text-align:center;">View All</a>
+                <a th:href="@{/employees/new}" class="btn btn-success">+ Add</a>
             </div>
         </div>
-
-        <!-- Projects Card -->
-        <div class="card">
-            <div>
-                <div class="card-header-flex">
-                    <div class="card-icon">🚀</div>
-                    <div class="card-count" th:text="${projectCount}">0</div>
-                </div>
-                <h3 class="card-name">Projects</h3>
-                <p class="card-desc">Oversee active projects, descriptions, progress statuses, timelines, and department leads.</p>
-            </div>
-            <div class="card-actions">
-                <a th:href="@{/projects}" class="btn-card btn-primary">View All</a>
-                <a th:href="@{/projects/new}" class="btn-card btn-secondary">+ Add</a>
+        <div class="glass-card">
+            <div style="font-size: 2rem; margin-bottom: 10px;">🚀</div>
+            <h3 style="font-size: 2rem; color: var(--text-main); margin-bottom: 5px;" th:text="${projectCount ?: 0}">0</h3>
+            <p style="color: var(--text-muted); margin-bottom: 15px;">Projects</p>
+            <div style="display:flex; gap: 10px;">
+                <a th:href="@{/projects}" class="btn btn-primary" style="flex:1; text-align:center;">View All</a>
+                <a th:href="@{/projects/new}" class="btn btn-success">+ Add</a>
             </div>
         </div>
-
-        <!-- Equipment Card -->
-        <div class="card">
-            <div>
-                <div class="card-header-flex">
-                    <div class="card-icon">💻</div>
-                    <div class="card-count" th:text="${equipmentCount}">0</div>
-                </div>
-                <h3 class="card-name">Equipment</h3>
-                <p class="card-desc">Manage physical assets, serial numbers, categories, purchase dates, and assigned staff.</p>
-            </div>
-            <div class="card-actions">
-                <a th:href="@{/equipments}" class="btn-card btn-primary">View All</a>
-                <a th:href="@{/equipments/new}" class="btn-card btn-secondary">+ Add</a>
+        <div class="glass-card">
+            <div style="font-size: 2rem; margin-bottom: 10px;">💻</div>
+            <h3 style="font-size: 2rem; color: var(--text-main); margin-bottom: 5px;" th:text="${equipmentCount ?: 0}">0</h3>
+            <p style="color: var(--text-muted); margin-bottom: 15px;">Equipment</p>
+            <div style="display:flex; gap: 10px;">
+                <a th:href="@{/equipments}" class="btn btn-primary" style="flex:1; text-align:center;">View All</a>
+                <a th:href="@{/equipments/new}" class="btn btn-success">+ Add</a>
             </div>
         </div>
     </div>
 </div>
-
 </body>
 </html>

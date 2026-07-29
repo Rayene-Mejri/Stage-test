@@ -39,7 +39,7 @@ class UserTest {
     @Test
     void testUserAllArgsConstructor() {
         // Order: id, username, password, email (matches entity field order)
-        User user = new User(3L, "alice", "pass123", "alice@example.com");
+        User user = new User(3L, "alice", "pass123", "alice@example.com", "LOCAL");
 
         assertThat(user.getId()).isEqualTo(3L);
         assertThat(user.getUsername()).isEqualTo("alice");

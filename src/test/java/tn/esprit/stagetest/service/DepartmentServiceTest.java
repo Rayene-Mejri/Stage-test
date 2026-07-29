@@ -14,6 +14,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -50,13 +51,54 @@ class DepartmentServiceTest {
     }
 
     @Test
-    void testGetDepartmentById() {
+    void testSearchDepartments_NullKeyword_ReturnsAll() {
+        when(departmentRepository.findAll()).thenReturn(List.of(department));
+
+        List<Department> result = departmentService.searchDepartments(null);
+
+        assertThat(result).hasSize(1);
+        verify(departmentRepository, times(1)).findAll();
+        verify(departmentRepository, never()).findByNameContainingIgnoreCaseOrCodeContainingIgnoreCase(anyString(), anyString());
+    }
+
+    @Test
+    void testSearchDepartments_EmptyKeyword_ReturnsAll() {
+        when(departmentRepository.findAll()).thenReturn(List.of(department));
+
+        List<Department> result = departmentService.searchDepartments("   ");
+
+        assertThat(result).hasSize(1);
+        verify(departmentRepository, times(1)).findAll();
+        verify(departmentRepository, never()).findByNameContainingIgnoreCaseOrCodeContainingIgnoreCase(anyString(), anyString());
+    }
+
+    @Test
+    void testSearchDepartments_ValidKeyword_ReturnsFiltered() {
+        when(departmentRepository.findByNameContainingIgnoreCaseOrCodeContainingIgnoreCase("ENG", "ENG")).thenReturn(List.of(department));
+
+        List<Department> result = departmentService.searchDepartments(" ENG ");
+
+        assertThat(result).hasSize(1);
+        verify(departmentRepository, times(1)).findByNameContainingIgnoreCaseOrCodeContainingIgnoreCase("ENG", "ENG");
+    }
+
+    @Test
+    void testGetDepartmentById_Found() {
         when(departmentRepository.findById(1L)).thenReturn(Optional.of(department));
 
         Optional<Department> result = departmentService.getDepartmentById(1L);
 
         assertThat(result).isPresent();
         assertThat(result.get().getCode()).isEqualTo("ENG");
+    }
+
+    @Test
+    void testGetDepartmentById_NotFound() {
+        when(departmentRepository.findById(2L)).thenReturn(Optional.empty());
+
+        Optional<Department> result = departmentService.getDepartmentById(2L);
+
+        assertThat(result).isEmpty();
     }
 
     @Test
@@ -76,5 +118,26 @@ class DepartmentServiceTest {
         departmentService.deleteDepartment(1L);
 
         verify(departmentRepository, times(1)).deleteById(1L);
+    }
+
+    @Test
+    void testCodeExists() {
+        when(departmentRepository.existsByCode("ENG")).thenReturn(true);
+        boolean exists = departmentService.codeExists("ENG");
+        assertThat(exists).isTrue();
+    }
+
+    @Test
+    void testCodeExistsForOther() {
+        when(departmentRepository.existsByCodeAndIdNot("ENG", 1L)).thenReturn(false);
+        boolean exists = departmentService.codeExistsForOther("ENG", 1L);
+        assertThat(exists).isFalse();
+    }
+
+    @Test
+    void testCount() {
+        when(departmentRepository.count()).thenReturn(5L);
+        long count = departmentService.count();
+        assertThat(count).isEqualTo(5L);
     }
 }

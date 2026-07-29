@@ -2,8 +2,10 @@ package tn.esprit.stagetest.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -60,8 +62,21 @@ public class AuthController {
     }
 
     @GetMapping("/home")
-    public String homePage(@AuthenticationPrincipal UserDetails userDetails, Model model) {
-        model.addAttribute("username", userDetails != null ? userDetails.getUsername() : "User");
+    public String homePage(Authentication authentication, Model model) {
+        String username = "User";
+        if (authentication != null && authentication.getPrincipal() != null) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof OAuth2User) {
+                OAuth2User oauth2User = (OAuth2User) principal;
+                username = oauth2User.getAttribute("name");
+                if (username == null) {
+                    username = oauth2User.getAttribute("email");
+                }
+            } else if (principal instanceof UserDetails) {
+                username = ((UserDetails) principal).getUsername();
+            }
+        }
+        model.addAttribute("username", username);
         model.addAttribute("departmentCount", departmentService.count());
         model.addAttribute("employeeCount", employeeService.count());
         model.addAttribute("projectCount", projectService.count());

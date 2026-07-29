@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="page(title, content)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">StageApp</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --sidebar-bg: #1e293b;
+            --primary: #818cf8;
+            --accent: #22d3ee;
+            --success: #4ade80;
+            --error: #f87171;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.05);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-main); display: flex; min-height: 100vh; overflow-x: hidden; }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            display: flex; flex-direction: column;
+            transition: transform 0.3s ease;
+            z-index: 100;
+            border-right: 1px solid var(--glass-border);
+        }
+        .sidebar-header {
+            padding: 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--glass-border);
+        }
+        .logo { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+        .close-btn { display: none; background: none; border: none; color: var(--text-main); font-size: 1.2rem; cursor: pointer; }
+        .nav-links { list-style: none; padding: 20px 0; flex-grow: 1; }
+        .nav-links li { margin-bottom: 5px; }
+        .nav-links a {
+            display: block; padding: 12px 20px; color: var(--text-muted); text-decoration: none;
+            transition: all 0.3s ease; border-left: 3px solid transparent;
+        }
+        .nav-links a:hover { color: var(--text-main); background: var(--glass-bg); border-left-color: var(--primary); }
+        .nav-links a.active { color: var(--text-main); background: var(--glass-bg); border-left-color: var(--accent); }
+        .sidebar-footer { padding: 20px; border-top: 1px solid var(--glass-border); }
+        .logout-btn {
+            width: 100%; padding: 10px; background: rgba(248, 113, 113, 0.1); border: 1px solid var(--error);
+            color: var(--error); border-radius: 8px; cursor: pointer; transition: 0.3s;
+        }
+        .logout-btn:hover { background: var(--error); color: white; }
+
+        /* Mobile Overlay */
+        .sidebar-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 90;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex-grow: 1; margin-left: 260px; display: flex; flex-direction: column; min-height: 100vh;
+            transition: margin-left 0.3s ease;
+            width: calc(100% - 260px);
+        }
+        .top-bar {
+            padding: 15px 30px; display: flex; align-items: center; justify-content: space-between;
+            background: var(--glass-bg); backdrop-filter: blur(20px); border-bottom: 1px solid var(--glass-border);
+        }
+        .hamburger { display: none; background: none; border: none; color: var(--text-main); font-size: 1.5rem; cursor: pointer; margin-right: 15px; }
+        .page-title { font-size: 1.25rem; font-weight: 600; }
+        .user-info { display: flex; align-items: center; gap: 10px; }
+        .username { color: var(--accent); font-weight: 500; }
+        
+        .page-content { padding: 30px; flex-grow: 1; overflow-y: auto; }
+
+        /* Shared Components */
+        .glass-card {
+            background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border);
+            border-radius: 12px; padding: 20px; transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .glass-card:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        
+        .btn {
+            padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;
+            text-decoration: none; display: inline-block; transition: 0.3s;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { filter: brightness(1.1); }
+        .btn-success { background: var(--success); color: var(--bg-dark); }
+        .btn-danger { background: rgba(248, 113, 113, 0.2); color: var(--error); border: 1px solid var(--error); }
+        .btn-danger:hover { background: var(--error); color: white; }
+        .btn-sm { padding: 4px 10px; font-size: 0.85rem; }
+        
+        /* Forms */
+        .form-group { margin-bottom: 15px; }
+        .form-label { display: block; margin-bottom: 5px; color: var(--text-muted); font-size: 0.9rem; }
+        .form-control {
+            width: 100%; padding: 10px; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border);
+            border-radius: 6px; color: var(--text-main); transition: 0.3s;
+        }
+        .form-control:focus { border-color: var(--primary); outline: none; }
+        
+        /* Tables */
+        .table-responsive { overflow-x: auto; }
+        .table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .table th, .table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--glass-border); }
+        .table th { color: var(--text-muted); font-weight: 500; font-size: 0.9rem; }
+        .table tr:hover { background: rgba(255,255,255,0.02); }
+        
+        /* Badges */
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 500; display: inline-block; }
+        .badge-mono { font-family: monospace; background: rgba(255,255,255,0.1); }
+        .badge-primary { background: rgba(129, 140, 248, 0.2); color: var(--primary); }
+        .badge-amber { background: rgba(245, 158, 11, 0.2); color: #fcd34d; }
+        .badge-cyan { background: rgba(34, 211, 238, 0.2); color: var(--accent); }
+        .badge-green { background: rgba(74, 222, 128, 0.2); color: var(--success); }
+        .badge-gray { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; }
+        
+        /* Alerts */
+        .alert { padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid transparent; }
+        .alert-success { background: rgba(74, 222, 128, 0.1); border-color: rgba(74, 222, 128, 0.3); color: var(--success); }
+        .alert-error { background: rgba(248, 113, 113, 0.1); border-color: rgba(248, 113, 113, 0.3); color: var(--error); }
+        
+        /* Dashboard Grid */
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+        
+        /* Top actions (search & add) */
+        .top-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;}
+        .search-form { display: flex; gap: 10px; }
+
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; width: 100%; }
+            .hamburger { display: block; }
+            .close-btn { display: block; }
+            .sidebar-overlay.visible { display: block; }
+            .top-actions { flex-direction: column; align-items: stretch; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <span class="logo">⚡ StageApp</span>
+            <button class="close-btn" onclick="toggleSidebar()">✕</button>
+        </div>
+        <ul class="nav-links">
+            <li><a th:href="@{/home}" th:classappend="${#strings.startsWith(#execInfo.templateName, 'home')} ? 'active' : ''">📊 Dashboard</a></li>
+            <li><a th:href="@{/departments}" th:classappend="${#strings.startsWith(#execInfo.templateName, 'departments')} ? 'active' : ''">🏢 Departments</a></li>
+            <li><a th:href="@{/employees}" th:classappend="${#strings.startsWith(#execInfo.templateName, 'employees')} ? 'active' : ''">👥 Employees</a></li>
+            <li><a th:href="@{/projects}" th:classappend="${#strings.startsWith(#execInfo.templateName, 'projects')} ? 'active' : ''">🚀 Projects</a></li>
+            <li><a th:href="@{/equipments}" th:classappend="${#strings.startsWith(#execInfo.templateName, 'equipments')} ? 'active' : ''">💻 Equipment</a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="logout-btn">🚪 Sign Out</button>
+            </form>
+        </div>
+    </nav>
+
+    <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <div class="main-content" id="main">
+        <header class="top-bar">
+            <div style="display:flex; align-items:center;">
+                <button class="hamburger" onclick="toggleSidebar()">☰</button>
+                <h1 class="page-title" th:text="${title}">Page</h1>
+            </div>
+            <div class="user-info">
+                <span th:text="${username}" class="username">User</span>
+            </div>
+        </header>
+        
+        <div class="page-content" th:insert="${content}"></div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('overlay').classList.toggle('visible');
+        }
+    </script>
+</body>
+</html>

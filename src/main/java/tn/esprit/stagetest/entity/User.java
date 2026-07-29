@@ -19,9 +19,13 @@ public class User {
     @Column(nullable = false, unique = true)
     private String username;
 
-    @Column(nullable = false)
+    @Column
     private String password;
 
     @Column(nullable = false, unique = true)
     private String email;
+
+    @Builder.Default
+    @Column(name = "auth_provider")
+    private String authProvider = "LOCAL";
 }

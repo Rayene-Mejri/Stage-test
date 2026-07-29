@@ -14,6 +14,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,6 +49,44 @@ class ProjectServiceTest {
     }
 
     @Test
+    void testSearchProjects_NullKeyword() {
+        when(projectRepository.findAll()).thenReturn(List.of(project));
+        List<Project> result = projectService.searchProjects(null);
+        assertThat(result).hasSize(1);
+        verify(projectRepository, never()).findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(anyString(), anyString());
+    }
+
+    @Test
+    void testSearchProjects_EmptyKeyword() {
+        when(projectRepository.findAll()).thenReturn(List.of(project));
+        List<Project> result = projectService.searchProjects("   ");
+        assertThat(result).hasSize(1);
+        verify(projectRepository, never()).findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(anyString(), anyString());
+    }
+
+    @Test
+    void testSearchProjects_ValidKeyword() {
+        when(projectRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase("App", "App")).thenReturn(List.of(project));
+        List<Project> result = projectService.searchProjects(" App ");
+        assertThat(result).hasSize(1);
+    }
+
+    @Test
+    void testGetProjectById_Found() {
+        when(projectRepository.findById(1L)).thenReturn(Optional.of(project));
+        Optional<Project> result = projectService.getProjectById(1L);
+        assertThat(result).isPresent();
+        assertThat(result.get().getName()).isEqualTo("App Redesign");
+    }
+
+    @Test
+    void testGetProjectById_NotFound() {
+        when(projectRepository.findById(2L)).thenReturn(Optional.empty());
+        Optional<Project> result = projectService.getProjectById(2L);
+        assertThat(result).isEmpty();
+    }
+
+    @Test
     void testSaveProject() {
         when(projectRepository.save(any(Project.class))).thenReturn(project);
 
@@ -55,5 +94,19 @@ class ProjectServiceTest {
 
         assertThat(saved).isNotNull();
         assertThat(saved.getStatus()).isEqualTo("IN_PROGRESS");
+    }
+
+    @Test
+    void testDeleteProject() {
+        doNothing().when(projectRepository).deleteById(1L);
+        projectService.deleteProject(1L);
+        verify(projectRepository, times(1)).deleteById(1L);
+    }
+
+    @Test
+    void testCount() {
+        when(projectRepository.count()).thenReturn(7L);
+        long count = projectService.count();
+        assertThat(count).isEqualTo(7L);
     }
 }
