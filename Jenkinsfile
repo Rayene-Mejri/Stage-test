@@ -4,10 +4,16 @@ pipeline {
     environment {
         IMAGE_NAME = "rayenemejri42/stage-test"
         JAVA_HOME = "/usr/lib/jvm/java-17-openjdk-amd64"  // No /bin/java!
+        CI_DB_CONTAINER = "stage-test-ci-mysql-${BUILD_NUMBER}"
+        CI_DB_PORT = "3307"
+        CI_DB_NAME = "stage_test_ci"
+        CI_DB_USER = "stage_test_ci"
+        CI_DB_PASSWORD = "stage-test-ci-password"
     }
 
     options {
         skipDefaultCheckout(true)
+        disableConcurrentBuilds()
     }
 
     stages {
@@ -22,6 +28,31 @@ pipeline {
             }
         }
 
+        stage('Start CI Database') {
+            steps {
+                sh '''
+                    docker run --detach --rm \
+                        --name "$CI_DB_CONTAINER" \
+                        --publish "$CI_DB_PORT:3306" \
+                        --env MYSQL_DATABASE="$CI_DB_NAME" \
+                        --env MYSQL_USER="$CI_DB_USER" \
+                        --env MYSQL_PASSWORD="$CI_DB_PASSWORD" \
+                        --env MYSQL_ROOT_PASSWORD="$CI_DB_PASSWORD" \
+                        mysql:8
+
+                    for attempt in $(seq 1 30); do
+                        if docker exec "$CI_DB_CONTAINER" mysqladmin ping -h localhost -u"$CI_DB_USER" -p"$CI_DB_PASSWORD" --silent; then
+                            exit 0
+                        fi
+                        sleep 2
+                    done
+
+                    docker logs "$CI_DB_CONTAINER"
+                    exit 1
+                '''
+            }
+        }
+
         stage('Maven Build & Test') {
             steps {
                 withEnv([
@@ -32,9 +63,10 @@ pipeline {
                         echo "JAVA_HOME is: $JAVA_HOME"
                         java -version
                         mvn --version
-                        mvn clean compile
-                        mvn test
-                        mvn package -DskipTests
+                        mvn clean verify \
+                            -Dspring.datasource.url=jdbc:mysql://localhost:$CI_DB_PORT/$CI_DB_NAME?useSSL=false\&serverTimezone=UTC \
+                            -Dspring.datasource.username=$CI_DB_USER \
+                            -Dspring.datasource.password=$CI_DB_PASSWORD
                     '''
                 }
             }
@@ -66,21 +98,13 @@ pipeline {
                     "JAVA_HOME=${env.JAVA_HOME}",
                     "PATH=${env.JAVA_HOME}/bin:${env.PATH}"
                 ]) {
-                    withCredentials([
-                        usernamePassword(
-                            credentialsId: 'db-credentials',
-                            usernameVariable: 'DB_USER',
-                            passwordVariable: 'DB_PASSWORD'
-                        )
-                    ]) {
-                        sh '''
-                            mvn flyway:migrate \
-                                -Dflyway.url=jdbc:mysql://localhost:3306/stage_test \
-                                -Dflyway.user=$DB_USER \
-                                -Dflyway.password=$DB_PASSWORD \
-                                -Dflyway.baselineOnMigrate=true
-                        '''
-                    }
+                    sh '''
+                        mvn flyway:migrate \
+                            -Dflyway.url=jdbc:mysql://localhost:$CI_DB_PORT/$CI_DB_NAME \
+                            -Dflyway.user=$CI_DB_USER \
+                            -Dflyway.password=$CI_DB_PASSWORD \
+                            -Dflyway.baselineOnMigrate=true
+                    '''
                 }
             }
         }
@@ -122,6 +146,7 @@ pipeline {
             echo "Check the logs above for errors."
         }
         always {
+            sh 'docker rm --force "$CI_DB_CONTAINER" || true'
             cleanWs()
         }
     }
