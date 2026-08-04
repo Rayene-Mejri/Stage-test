@@ -64,7 +64,7 @@ pipeline {
                         java -version
                         mvn --version
                         mvn clean verify \
-                            -Dspring.datasource.url=jdbc:mysql://localhost:$CI_DB_PORT/$CI_DB_NAME?useSSL=false\&serverTimezone=UTC \
+                            "-Dspring.datasource.url=jdbc:mysql://localhost:$CI_DB_PORT/$CI_DB_NAME?useSSL=false&serverTimezone=UTC" \
                             -Dspring.datasource.username=$CI_DB_USER \
                             -Dspring.datasource.password=$CI_DB_PASSWORD
                     '''
