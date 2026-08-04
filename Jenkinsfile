@@ -53,6 +53,23 @@ pipeline {
             }
         }
 
+        stage('Flyway Migration') {
+            steps {
+                withEnv([
+                    "JAVA_HOME=${env.JAVA_HOME}",
+                    "PATH=${env.JAVA_HOME}/bin:${env.PATH}"
+                ]) {
+                    sh '''
+                        mvn flyway:migrate \
+                            -Dflyway.url=jdbc:mysql://localhost:$CI_DB_PORT/$CI_DB_NAME \
+                            -Dflyway.user=$CI_DB_USER \
+                            -Dflyway.password=$CI_DB_PASSWORD \
+                            -Dflyway.baselineOnMigrate=true
+                    '''
+                }
+            }
+        }
+
         stage('Maven Build & Test') {
             steps {
                 withEnv([
@@ -91,23 +108,6 @@ pipeline {
             }
         }
 
-
-        stage('Flyway Migration') {
-            steps {
-                withEnv([
-                    "JAVA_HOME=${env.JAVA_HOME}",
-                    "PATH=${env.JAVA_HOME}/bin:${env.PATH}"
-                ]) {
-                    sh '''
-                        mvn flyway:migrate \
-                            -Dflyway.url=jdbc:mysql://localhost:$CI_DB_PORT/$CI_DB_NAME \
-                            -Dflyway.user=$CI_DB_USER \
-                            -Dflyway.password=$CI_DB_PASSWORD \
-                            -Dflyway.baselineOnMigrate=true
-                    '''
-                }
-            }
-        }
 
         stage('Build Docker Image') {
             steps {
